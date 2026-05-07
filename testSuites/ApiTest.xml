@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="API Test Suit">
+  <test thread-count="5" name="healthCheck">
+    <classes>
+      <class name="pankajrawat.test.api.HealtCheckTest"/>
+    </classes>
+  </test> <!-- Test -->
+</suite> <!-- Suite -->

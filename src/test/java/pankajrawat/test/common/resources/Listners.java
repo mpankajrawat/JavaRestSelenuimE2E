@@ -12,132 +12,81 @@ import com.aventstack.extentreports.ExtentTest;
 import com.aventstack.extentreports.Status;
 
 import pankajrawat.common.resources.ExtentReporterNG;
+import pankajrawat.testUtils.ui.BaseUiTest;
 import pankajrawat.ui.utility.ScreenShotUtil;
 
 public class Listners implements ITestListener {
-	
-	WebDriver driver;
-	
 
-	ExtentTest test;
-	ExtentReports extent = ExtentReporterNG.getRreportObject();
-	
-	ThreadLocal<ExtentTest> extentTest = new ThreadLocal<ExtentTest>();
-	/**
-	   * Invoked each time before a test will be invoked. The <code>ITestResult</code> is only partially
-	   * filled with the references to class, method, start millis and status.
-	   *
-	   * @param result the partially filled <code>ITestResult</code>
-	   * @see ITestResult#STARTED
-	   */
-	@Override
-	public void onTestStart(ITestResult result) {
-		test = extent.createTest(result.getMethod().getMethodName());
-		extentTest.set(test);
-	}
+    ExtentReports extent = ExtentReporterNG.getRreportObject();
+    ThreadLocal<ExtentTest> extentTest = new ThreadLocal<>();
 
-	/**
-	 * Invoked each time a test succeeds.
-	 *
-	 * @param result <code>ITestResult</code> containing information about the run
-	 *               test
-	 * @see ITestResult#SUCCESS
-	 */
-	@Override
-	public void onTestSuccess(ITestResult result) {
-		// not implemented
-		extentTest.get().log(Status.PASS, "Test Passes");
-	}
+    private ExtentTest getTest(ITestResult result) {
+        if (extentTest.get() == null) {
+            ExtentTest test = extent.createTest(result.getMethod().getMethodName());
+            extentTest.set(test);
+        }
+        return extentTest.get();
+    }
 
-	/**
-	 * Invoked each time a test fails.
-	 *
-	 * @param result <code>ITestResult</code> containing information about the run
-	 *               test
-	 * @see ITestResult#FAILURE
-	 */
-	@Override
-	public void onTestFailure(ITestResult result) {
-		
-		String filepath = null;
-		try {
-			driver = (WebDriver) result.getTestClass().getRealClass().getField("driver").get(result.getInstance());
-		} catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		extentTest.get().fail(result.getThrowable());
-		ScreenShotUtil screenshot = new ScreenShotUtil(driver);
-		try {
-			filepath = screenshot.getScreenshot(result.getMethod().getMethodName(), driver);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		extentTest.get().addScreenCaptureFromPath(filepath, result.getMethod().getMethodName());
-	}
+    @Override
+    public void onTestStart(ITestResult result) {
+        String testName = result.getTestClass().getRealClass().getSimpleName() 
+                + " - " + result.getMethod().getMethodName();
 
-	/**
-	 * Invoked each time a test is skipped.
-	 *
-	 * @param result <code>ITestResult</code> containing information about the run
-	 *               test
-	 * @see ITestResult#SKIP
-	 */
-	@Override
-	public void onTestSkipped(ITestResult result) {
-		// not implemented
-	}
+        ExtentTest test = extent.createTest(testName);
+        extentTest.set(test);
 
-	/**
-	 * Invoked each time a method fails but has been annotated with
-	 * successPercentage and this failure still keeps it within the success
-	 * percentage requested.
-	 *
-	 * @param result <code>ITestResult</code> containing information about the run
-	 *               test
-	 * @see ITestResult#SUCCESS_PERCENTAGE_FAILURE
-	 */
-	@Override
-	public void onTestFailedButWithinSuccessPercentage(ITestResult result) {
-		// not implemented
-	}
+        test.log(Status.INFO, "TEST EXECUTION STARTED");
+    }
 
-	/**
-	 * Invoked each time a test fails due to a timeout.
-	 *
-	 * @param result <code>ITestResult</code> containing information about the run
-	 *               test
-	 */
-	@Override
-	public void onTestFailedWithTimeout(ITestResult result) {
-		onTestFailure(result);
-	}
+    @Override
+    public void onTestSuccess(ITestResult result) {
+        ExtentTest test = getTest(result);
+        test.log(Status.PASS, "TEST PASSED");
+    }
 
-	/**
-	 * Invoked before running all the test methods belonging to the classes inside
-	 * the &lt;test&gt; tag and calling all their Configuration methods.
-	 *
-	 * @param context The test context
-	 */
-	@Override
-	public void onStart(ITestContext context) {
-		// not implemented
-	}
+    @Override
+    public void onTestFailure(ITestResult result) {
 
-	/**
-	 * Invoked after all the test methods belonging to the classes inside the
-	 * &lt;test&gt; tag have run and all their Configuration methods have been
-	 * called.
-	 *
-	 * @param context The test context
-	 */
-	@Override
-	public void onFinish(ITestContext context) {
-		// not implemented
-		extent.flush();
-	}
+        ExtentTest test = getTest(result);
 
+        test.log(Status.FAIL, "TEST FAILED");
+        test.fail(result.getThrowable());
+
+        if (result.getInstance() instanceof BaseUiTest) {
+            WebDriver driver = ((BaseUiTest) result.getInstance()).driver;
+
+            if (driver != null) {
+                try {
+                    ScreenShotUtil screenshot = new ScreenShotUtil(driver);
+                    String filepath = screenshot.getScreenshot(result.getMethod().getMethodName());
+                    test.addScreenCaptureFromPath(filepath);
+                } catch (IOException e) {
+                    test.warning("Screenshot failed: " + e.getMessage());
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onTestSkipped(ITestResult result) {
+        ExtentTest test = getTest(result);
+
+        if (result.getThrowable() != null) {
+            test.log(Status.SKIP, "TEST SKIPPED");
+            test.skip(result.getThrowable());
+        } else {
+            test.log(Status.SKIP, "TEST SKIPPED WITH UNKNOWN CAUSE");
+        }
+    }
+
+    @Override
+    public void onTestFailedWithTimeout(ITestResult result) {
+        onTestFailure(result);
+    }
+
+    @Override
+    public void onFinish(ITestContext context) {
+        extent.flush();
+    }
 }

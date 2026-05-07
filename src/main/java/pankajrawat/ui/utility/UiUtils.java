@@ -12,7 +12,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 public class UiUtils {
 
-	WebDriver driver;
+	private WebDriver driver;
 	
 	public UiUtils(WebDriver driver) {
 		
@@ -31,7 +31,9 @@ public class UiUtils {
 		}		
 	}
 	
-	public void selectDropDown(By locator, String value) {
+//	/-------------------------------------SELECT DROPDOWN UTILS-----------------------------------------------------/
+	
+	public void selectDropDownByText(By locator, String value) {
 		WebElement element = driver.findElement(locator);
 		
 		Select select = new Select(element);
@@ -39,8 +41,57 @@ public class UiUtils {
 				
 	}
 	
+	public void selectDropDownByText(By locator, int index) {
+		WebElement element = driver.findElement(locator);
+		
+		Select select = new Select(element);
+		select.selectByIndex(index);
+				
+	}
+	
+	public void selectDropDownByValue(By locator, String value) {
+		WebElement element = driver.findElement(locator);
+		
+		Select select = new Select(element);
+		select.selectByValue(value);
+		
+	}
+	
+//	/--------------------------------------------------------------------------------------------------------------/
+	
+//	/---------------------------------ACTIONS CLASS UITLS----------------------------------------------------------/
+	
+	public void actionClick(By locator) {
+		WebElement element = driver.findElement(locator);
+		
+		Actions act = new Actions(driver);
+		act.click(element).build().perform();
+	}
+	
+	public void actionRightClick(By locator) {
+		WebElement element = driver.findElement(locator);
+		
+		Actions act = new Actions(driver);
+		act.contextClick(element).build().perform();;
+	}
+	
+	public void actionsDoubbleClick(By locator) {
+		WebElement element = driver.findElement(locator);
+		
+		Actions act = new Actions(driver);
+		act.doubleClick(element).build().perform();
+	}
+	
+	public void actionSendKeys(By locator, String value) {
+		WebElement element = driver.findElement(locator);
+		
+		Actions act = new Actions(driver);
+		act.sendKeys(element, value).build().perform();
+	}
+	
 	public void actionDropDown(By locator, String value) {
 		Actions action = new Actions(driver);
+		
 		action.sendKeys(driver.findElement(locator), value).build().perform();
 	}
 	

@@ -53,11 +53,11 @@ public class CheckoutPage extends UiUtils {
 	}
 	
 	public void enterExpMonthDetails(String month) {
-		selectDropDown(expMonthDropdown, month);
+		selectDropDownByText(expMonthDropdown, month);
 	}
 	
 	public void enterExpYearDetails(String year) {
-		selectDropDown(expMonthDropdown, year);
+		selectDropDownByText(expMonthDropdown, year);
 	}
 	
 	public void enterCountryDetails(String contry) {

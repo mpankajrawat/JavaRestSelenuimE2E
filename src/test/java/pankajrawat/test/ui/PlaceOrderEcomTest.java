@@ -7,13 +7,13 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import pankajrawat.testUtils.ui.BaseTest;
+import pankajrawat.testUtils.ui.BaseUiTest;
 import pankajrawat.ui.pageobjects.CartPage;
 import pankajrawat.ui.pageobjects.CheckoutPage;
 import pankajrawat.ui.pageobjects.HomePage;
 import pankajrawat.ui.pageobjects.OrderConfirmationPage;
 
-public class PlaceOrderEcomTest extends BaseTest {
+public class PlaceOrderEcomTest extends BaseUiTest {
 	
 	@Test(dataProvider = "getData", groups= {"dataset"})
 	public void submitOrder(HashMap<String,String> data) throws IOException {

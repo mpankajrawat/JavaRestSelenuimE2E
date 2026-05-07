@@ -6,10 +6,10 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import pankajrawat.test.common.resources.Retry;
-import pankajrawat.testUtils.ui.BaseTest;
+import pankajrawat.testUtils.ui.BaseUiTest;
 import pankajrawat.ui.pageobjects.HomePage;
 
-public class LoginEcomTest extends BaseTest {
+public class LoginEcomTest extends BaseUiTest {
 
 	@Test(groups={"loginErrorTest"})
 	public void invalidUsername() throws IOException {
